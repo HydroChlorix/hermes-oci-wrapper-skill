@@ -4,6 +4,7 @@ description: Use when the user wants Hermes to work with Oracle Cloud Infrastruc
 version: 0.1.3
 author: Hermes Agent
 license: UPL-1.0
+platforms: [linux]
 metadata:
   hermes:
     tags: [oci, oracle-cloud, oracle-skills, wrapper, devops, cloud]
@@ -39,12 +40,26 @@ Do not use when:
 
 ## Readiness Workflow
 
-1. Run `bash ~/.hermes/skills/devops/oci-wrapper/install.sh`.
-2. Confirm the script can find or update `~/.hermes/vendor/oracle-skills`.
-3. Confirm the script can find `oci` on `PATH`.
-4. Confirm the script can find `~/.oci/config`.
-5. Confirm the script can find `~/.hermes/vendor/oracle-skills/oci/SKILL.md`.
-6. If readiness is incomplete, stop and fix the local prerequisite instead of guessing.
+Run these inline checks or use `bash install.sh` (requires git clone install):
+
+```bash
+# Prerequisite checks (inline — works with any install method)
+command -v oci && oci --version
+test -f ~/.oci/config && echo "config ok" || echo "config missing"
+HERMES_HOME="${HERMES_HOME:-${HOME}/.hermes}"
+test -f "${HERMES_HOME}/vendor/oracle-skills/oci/SKILL.md" && echo "upstream ok"
+```
+
+If `install.sh` is available (git clone install), run:
+
+```bash
+bash ~/.hermes/skills/devops/oci-wrapper/install.sh
+```
+
+At minimum confirm:
+1. `oci` CLI in PATH
+2. `~/.oci/config` exists
+3. Upstream oracle-skills checkout exists
 
 Read-only readiness and inspection commands are allowed without extra confirmation.
 
@@ -96,9 +111,10 @@ After readiness passes, use the upstream OCI guidance as the domain source of tr
 
 - Missing `oci` binary: install OCI CLI separately, then rerun readiness.
 - Missing `~/.oci/config`: configure local OCI auth separately, then rerun readiness.
-- Wrong region or profile: inspect with `bash examples/safe-config-inspect.sh` and rerun read-only OCI commands with the intended profile.
+- Wrong region or profile: inspect with `bash examples/safe-config-inspect.sh` (git clone install) or run inline: `awk -F= '/^region=/ {print $2}' ~/.oci/config`.
 - Authorization failures: verify the selected profile, region, tenancy, fingerprint, and private key path exist locally.
-- Missing upstream skill: rerun `install.sh` or `update-upstream.sh`; if upstream only contains a stub, keep this wrapper minimal and avoid copying large docs.
+- Missing upstream skill: run `bash ~/.hermes/skills/devops/oci-wrapper/install.sh` (git clone install) or manual clone: `git clone https://github.com/HydroChlorix/oracle-skills "${HERMES_HOME:-~/.hermes}/vendor/oracle-skills"`.
+- When installed via `hermes skills install`: `install.sh` and `examples/` scripts are not present — use the inline shell commands listed in this SKILL.md instead.
 
 ## Verification Checklist
 
