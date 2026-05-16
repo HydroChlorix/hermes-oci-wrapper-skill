@@ -38,11 +38,16 @@ This downloads only the SKILL.md. Supporting scripts (`install.sh`, examples) ar
 hermes skills uninstall oci-wrapper
 ```
 
-> **Note:** Uninstalling the skill does **not** remove the upstream `oracle-skills` checkout under `$HERMES_HOME/vendor/oracle-skills`.  To remove that too (requires git-clone install path), run:
-
-```bash
-bash ~/.hermes/skills/devops/oci-wrapper/install.sh --uninstall
-```
+> **Note:** Uninstalling the skill does **not** remove the upstream `oracle-skills` checkout under `$HERMES_HOME/vendor/oracle-skills`.  To remove that too:
+>
+> - **If installed via git clone** — use the install script:
+>   ```bash
+>   bash ~/.hermes/skills/devops/oci-wrapper/install.sh --uninstall
+>   ```
+> - **If installed via `hermes skills install`** — the skill only contains a single `SKILL.md`, so remove the vendor checkout manually:
+>   ```bash
+>   rm -rf "${HERMES_HOME:-${HOME}/.hermes}/vendor/oracle-skills"
+>   ```
 
 ## Quick readiness check
 
