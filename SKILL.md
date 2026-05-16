@@ -1,8 +1,8 @@
 ---
 name: oci-wrapper
-description: Use when inspecting Oracle Cloud Infrastructure safely from Hermes with local OCI CLI credentials and upstream oracle-skills guidance.
+description: Use when the user wants Hermes to work with Oracle Cloud Infrastructure through the local OCI CLI and local ~/.oci/config while delegating detailed OCI guidance to HydroChlorix/oracle-skills.
 version: 0.1.0
-author: HydroChlorix
+author: Hermes Agent
 license: MIT
 metadata:
   hermes:
@@ -14,87 +14,96 @@ metadata:
 
 ## Overview
 
-This wrapper skill helps Hermes work with Oracle Cloud Infrastructure using the local `oci` CLI and local `~/.oci/config` authentication model.
+This wrapper skill keeps OCI enablement lightweight.
 
-It intentionally avoids duplicating large OCI documentation. Instead, it verifies local readiness, keeps a local clone of `HydroChlorix/oracle-skills` under `~/.hermes/vendor/oracle-skills`, and delegates detailed OCI guidance to that upstream repo when available.
+It does not duplicate large Oracle Cloud Infrastructure reference material. Instead, it validates the local execution environment, points Hermes at the upstream `HydroChlorix/oracle-skills` repository, and adds safety boundaries for using the local `oci` CLI with the local `~/.oci/config`.
+
+Primary upstream reference:
+- `~/.hermes/vendor/oracle-skills/oci/SKILL.md`
+
+Use this wrapper when the machine should rely on its own OCI CLI install and `~/.oci/config`, not on embedded credentials, copied config snippets, or vendor-specific secrets inside the skill repo.
 
 ## When to Use
 
-Use this skill when:
-- you need safe, read-only OCI readiness checks
-- you want Hermes to inspect local OCI CLI/config state without printing secrets
-- you want an OCI wrapper that points to upstream `oracle-skills` content instead of vendoring OCI docs
-- you need guarded behavior before any billable, destructive, or security-sensitive OCI action
+Use when:
+- the user wants OCI readiness checks before any cloud action
+- the user wants Hermes to inspect OCI configuration safely without printing secrets
+- the user wants to use the local `oci` CLI and local `~/.oci/config`
+- the user wants Hermes to defer deeper OCI guidance to `HydroChlorix/oracle-skills`
+- the user wants explicit confirmation boundaries around billable, destructive, or public-exposure changes
 
-Do not use this skill when:
-- you need to store secrets in repo files
-- you want this wrapper to replace the OCI CLI
-- you want to bypass confirmation for destructive or billable actions
+Do not use when:
+- the user expects this repo to replace OCI CLI installation or authentication setup entirely
+- the user wants copied Oracle documentation inside this wrapper repo
+- the user needs fully automated destructive or billable changes without confirmation
 
 ## Readiness Workflow
 
 1. Run `bash ~/.hermes/skills/devops/oci-wrapper/install.sh`.
-2. Run `bash ~/.hermes/skills/devops/oci-wrapper/examples/check-oci-readiness.sh`.
-3. If needed, run `bash ~/.hermes/skills/devops/oci-wrapper/examples/safe-config-inspect.sh`.
-4. Check upstream guidance in `~/.hermes/vendor/oracle-skills`:
-   - prefer `~/.hermes/vendor/oracle-skills/oci/SKILL.md` when present
-   - otherwise search the upstream repo for OCI-related docs before acting
-5. Keep actions read-only unless the human explicitly approves higher-risk changes.
+2. Confirm the script can find or update `~/.hermes/vendor/oracle-skills`.
+3. Confirm the script can find `oci` on `PATH`.
+4. Confirm the script can find `~/.oci/config`.
+5. Confirm the script can find `~/.hermes/vendor/oracle-skills/oci/SKILL.md`.
+6. If readiness is incomplete, stop and fix the local prerequisite instead of guessing.
 
-## Wrapper Rules
+Read-only readiness and inspection commands are allowed without extra confirmation.
 
-- Never print private keys, auth tokens, full `~/.oci/config`, unredacted fingerprints, or credential files.
-- Prefer discovery commands first: `oci --version`, `oci --help`, `oci iam region list`, `oci os ns get`, or similar read-only commands only after readiness is confirmed.
-- If `~/.hermes/vendor/oracle-skills/oci/SKILL.md` is missing, say so explicitly and fall back to targeted upstream repo search instead of inventing OCI procedures.
-- Treat OCI changes as high impact unless clearly read-only.
+## Safe Read-Only Operations
 
-## Allowed Without Extra Confirmation
-
-Read-only checks such as:
+Allowed without extra approval:
 - `oci --version`
-- `oci --help`
-- verifying whether `~/.oci/config` exists
-- listing available profile names from `~/.oci/config` in redacted form
-- upstream repo sync/read operations
-- read-only OCI inspection that does not create cost, modify IAM, or alter network exposure
+- `oci iam region-subscription list --config-file ~/.oci/config --profile <profile>`
+- `oci os ns get --config-file ~/.oci/config --profile <profile>`
+- listing compartments, VCNs, subnets, instances, buckets, and policies in read-only mode
+- checking current profile names, tenancy OCIDs, user OCIDs, fingerprint presence, key file path existence, and configured regions if values are redacted appropriately
+- reading upstream guidance from `~/.hermes/vendor/oracle-skills/oci/SKILL.md`
 
-## Requires Explicit Human Confirmation First
+Always redact secrets. Never print:
+- private key contents
+- auth tokens
+- API keys
+- session tokens
+- full `~/.oci/config`
+- unredacted OCIDs when the user explicitly asked for secret-safe output
 
-Always ask before:
+## Mandatory Confirmation Boundaries
+
+Get explicit user confirmation before:
 - creating billable resources
-- terminating or deleting resources
-- changing IAM policies or identity configuration
-- opening public ingress or modifying security lists / NSGs
-- rotating, deleting, or replacing credentials
-- running `terraform apply`
-- running `terraform destroy`
-- any bulk mutation across compartments or regions
+- terminating, deleting, or replacing resources
+- changing IAM policies or group membership
+- opening public ingress or widening network exposure
+- rotating, generating, exporting, or deleting credentials
+- `terraform apply`
+- `terraform destroy`
+- bulk writes, patches, or lifecycle actions across multiple OCI resources
 
-## Upstream Delegation Pattern
+When approval is granted, restate the exact target scope first.
 
-When the upstream repo contains the needed OCI guidance:
-- cite the upstream path you used
-- follow its guardrails
-- keep local output redacted
+## Using Upstream Guidance
 
-When the upstream repo does not yet contain the needed OCI guidance:
-- report that `oci/SKILL.md` is missing or incomplete
-- search the upstream repo for nearby Oracle/OCI content
-- limit yourself to readiness checks and safe discovery unless the human provides a narrower request
+After readiness passes, use the upstream OCI guidance as the domain source of truth:
 
-## Common Pitfalls
+1. Read `~/.hermes/vendor/oracle-skills/oci/SKILL.md`.
+2. If the upstream repo later adds more OCI sub-skills, prefer those rather than expanding this wrapper with copied docs.
+3. Keep this wrapper focused on:
+   - readiness
+   - safe inspection
+   - confirmation boundaries
+   - handoff to upstream OCI knowledge
 
-1. Assuming `oci` is installed because SSH auth exists. Check `oci --version` directly.
-2. Dumping `~/.oci/config` to the screen. Use the redacted inspection example instead.
-3. Treating missing upstream `oci/SKILL.md` as permission to invent full OCI runbooks. Do not do that.
-4. Performing billable or destructive OCI changes without explicit confirmation.
-5. Forgetting that region/profile mismatches can look like auth failures.
+## Troubleshooting Shortlist
+
+- Missing `oci` binary: install OCI CLI separately, then rerun readiness.
+- Missing `~/.oci/config`: configure local OCI auth separately, then rerun readiness.
+- Wrong region or profile: inspect with `bash examples/safe-config-inspect.sh` and rerun read-only OCI commands with the intended profile.
+- Authorization failures: verify the selected profile, region, tenancy, fingerprint, and private key path exist locally.
+- Missing upstream skill: rerun `install.sh` or `update-upstream.sh`; if upstream only contains a stub, keep this wrapper minimal and avoid copying large docs.
 
 ## Verification Checklist
 
-- [ ] `install.sh` completed without printing secrets
-- [ ] `~/.hermes/vendor/oracle-skills` exists
-- [ ] local OCI CLI presence or absence has been reported accurately
-- [ ] local `~/.oci/config` presence or absence has been reported accurately
-- [ ] upstream `oci/SKILL.md` presence or absence has been reported accurately
-- [ ] high-impact OCI actions are gated behind explicit confirmation
+- [ ] `install.sh` completes and reports readiness status without printing secrets
+- [ ] `~/.hermes/vendor/oracle-skills/oci/SKILL.md` exists
+- [ ] `bash examples/check-oci-readiness.sh` runs successfully
+- [ ] `bash examples/safe-config-inspect.sh` prints only redacted values
+- [ ] `hermes chat -s oci-wrapper -q "Use the OCI wrapper skill. Check readiness only. Do not print secrets." -Q` loads the skill

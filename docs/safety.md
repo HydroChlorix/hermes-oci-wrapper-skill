@@ -1,34 +1,44 @@
-# Safety Rules
+# OCI wrapper safety rules
 
-## Allowed by Default
+## Always allowed without extra approval
 
-Read-only and local-safety operations only:
-- `oci --version`
-- `oci --help`
+- checking whether `oci` exists
 - checking whether `~/.oci/config` exists
-- redacted profile/region inspection
-- cloning or updating the upstream `oracle-skills` repo
-- read-only upstream documentation search
+- reading profile names and redacted metadata from local OCI config
+- running read-only OCI identity, namespace, compartment, networking, and inventory queries
+- pulling upstream skill updates with `update-upstream.sh`
 
-## Requires Explicit Confirmation
+## Explicit confirmation required
 
-Do not proceed without the human explicitly approving:
-- creating billable OCI resources
-- terminating, deleting, or replacing OCI resources
-- changing IAM policies, groups, dynamic groups, or compartments
-- opening public ingress or broadening network/security-list/NSG rules
-- rotating, replacing, exporting, or deleting credentials
-- running `terraform apply`
-- running `terraform destroy`
-- multi-region or multi-compartment mutations
+Require a clear user confirmation before any of the following:
 
-## Secret Handling
+- creating billable resources
+- terminating, deleting, or force-replacing resources
+- changing IAM policies, dynamic groups, group membership, or federation rules
+- opening public ingress, changing security lists, widening NSGs, or exposing new load balancers
+- rotating, generating, exporting, or deleting credentials or keys
+- writing Terraform state changes with `terraform apply`
+- destroying infrastructure with `terraform destroy`
+- modifying many OCI resources in one batch action
+
+## Redaction requirements
 
 Never print:
-- private keys
+- private key contents
 - auth tokens
+- API signing keys
 - full `~/.oci/config`
-- full fingerprint values
-- user or tenancy OCIDs unless the human explicitly asked and disclosure is safe
+- raw credential files
 
-Use `[REDACTED]` in logs and examples.
+Prefer:
+- existence checks
+- profile names
+- redacted OCID prefixes when needed
+- region names
+- filesystem paths without file contents
+
+## Reasoning model
+
+- read-only discovery is low-risk and should be fast
+- write actions are medium or high risk and need explicit scope confirmation
+- destructive or public-exposure changes must be acknowledged before execution

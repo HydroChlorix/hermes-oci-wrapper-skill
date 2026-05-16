@@ -1,33 +1,34 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-OCI_CONFIG="${HOME}/.oci/config"
-UPSTREAM_OCI_SKILL="${HOME}/.hermes/vendor/oracle-skills/oci/SKILL.md"
+HOME_DIR="${HOME}"
+OCI_CONFIG="${HOME_DIR}/.oci/config"
+UPSTREAM_SKILL="${HOME_DIR}/.hermes/vendor/oracle-skills/oci/SKILL.md"
 
-status=0
+pass() {
+  printf '[readiness][ok] %s
+' "$*"
+}
 
-printf 'oci_wrapper_readiness\n'
+warn() {
+  printf '[readiness][warn] %s
+' "$*" >&2
+}
 
 if command -v oci >/dev/null 2>&1; then
-  printf 'oci_cli: present\n'
-  oci --version | head -n 1 | sed 's/^/oci_version: /'
+  pass "oci cli present"
 else
-  printf 'oci_cli: missing\n'
-  status=1
+  warn 'oci cli missing from PATH'
 fi
 
-if [ -f "${OCI_CONFIG}" ]; then
-  printf 'oci_config: present (%s)\n' "${OCI_CONFIG}"
+if [ -f "$OCI_CONFIG" ]; then
+  pass "oci config present at ${OCI_CONFIG}"
 else
-  printf 'oci_config: missing (%s)\n' "${OCI_CONFIG}"
-  status=1
+  warn "oci config missing at ${OCI_CONFIG}"
 fi
 
-if [ -f "${UPSTREAM_OCI_SKILL}" ]; then
-  printf 'upstream_oci_skill: present (%s)\n' "${UPSTREAM_OCI_SKILL}"
+if [ -f "$UPSTREAM_SKILL" ]; then
+  pass "upstream skill present at ${UPSTREAM_SKILL}"
 else
-  printf 'upstream_oci_skill: missing (%s)\n' "${UPSTREAM_OCI_SKILL}"
-  printf 'upstream_fallback: search ~/.hermes/vendor/oracle-skills for OCI-related docs before acting\n'
+  warn "upstream skill missing at ${UPSTREAM_SKILL}"
 fi
-
-exit "$status"

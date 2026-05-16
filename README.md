@@ -1,55 +1,54 @@
 # Hermes OCI Wrapper Skill
 
-A lightweight Hermes skill wrapper for Oracle Cloud Infrastructure (OCI).
+Lightweight Hermes skill wrapper for Oracle Cloud Infrastructure (OCI) work.
 
-This repo does not vendor large OCI docs. Instead, it:
-- verifies local OCI prerequisites (`oci` CLI and `~/.oci/config`)
-- clones or updates the upstream `HydroChlorix/oracle-skills` repo into `~/.hermes/vendor/oracle-skills`
-- points Hermes to upstream OCI guidance when available
-- enforces read-only-by-default behavior for OCI inspection
+This repository does three things:
+- uses the local `oci` CLI and local `~/.oci/config` already present on the machine
+- vendors the upstream skill source as a live Git checkout under `~/.hermes/vendor/oracle-skills`
+- keeps this wrapper focused on Hermes-specific guardrails, readiness checks, and safe usage patterns instead of copying large OCI docs
 
-## Install into Hermes skills
+The wrapper intentionally delegates detailed OCI domain guidance to `HydroChlorix/oracle-skills`, especially `oci/SKILL.md` and any future OCI sub-skills added upstream.
 
-Option 1: clone directly into the local Hermes skills tree.
+## Repo contents
+
+- `SKILL.md` — installable Hermes skill wrapper
+- `install.sh` — clone/update upstream and run non-secret readiness checks
+- `update-upstream.sh` — fast-forward-only refresh for the vendored upstream checkout
+- `examples/check-oci-readiness.sh` — standalone readiness probe
+- `examples/safe-config-inspect.sh` — redacted local config inspection example
+- `docs/design.md` — wrapper design rationale
+- `docs/safety.md` — safety policy and confirmation boundaries
+- `docs/troubleshooting.md` — common failure modes and operator guidance
+
+## Quick install
 
 ```bash
-git clone git@github.com:HydroChlorix/hermes-oci-wrapper-skill.git ~/.hermes/skills/devops/oci-wrapper
+git clone https://github.com/HydroChlorix/hermes-oci-wrapper-skill.git ~/.hermes/skills/devops/oci-wrapper
 bash ~/.hermes/skills/devops/oci-wrapper/install.sh
 ```
 
-Option 2: clone anywhere and use the skill content as reference.
+If you run Hermes with a profile-specific `HERMES_HOME`, clone into `$HERMES_HOME/skills/devops/oci-wrapper` instead.
 
-## What `install.sh` does
-
-- creates `~/.hermes/vendor`
-- clones or updates `https://github.com/HydroChlorix/oracle-skills` into `~/.hermes/vendor/oracle-skills`
-- checks whether the `oci` CLI is installed
-- checks whether `~/.oci/config` exists
-- checks whether `~/.hermes/vendor/oracle-skills/oci/SKILL.md` exists
-- never prints secrets from local OCI config
-
-## Files
-
-- `SKILL.md` - wrapper skill definition
-- `install.sh` - vendor sync + readiness checks
-- `update-upstream.sh` - fast-forward upstream updates only
-- `examples/check-oci-readiness.sh` - safe prerequisite check
-- `examples/safe-config-inspect.sh` - redacted config inspection
-- `docs/design.md` - wrapper design notes
-- `docs/safety.md` - allowed vs confirmation-required actions
-- `docs/troubleshooting.md` - common failure modes
-
-## Validation commands
+## Quick readiness check
 
 ```bash
-bash install.sh
 bash examples/check-oci-readiness.sh
 bash examples/safe-config-inspect.sh
+```
+
+## Load in Hermes
+
+```bash
 hermes chat -s oci-wrapper -q "Use the OCI wrapper skill. Check readiness only. Do not print secrets." -Q
 ```
 
-## Notes
+## What this wrapper does not do
 
-- The wrapper prefers upstream `oci/SKILL.md` when present.
-- If upstream OCI skill content is missing or still a stub, the wrapper falls back to targeted upstream repo search and local readiness-only guidance.
-- Read-only inspection is allowed by default. Any billable, destructive, IAM-changing, public-ingress, credential-rotating, or Terraform apply/destroy action requires explicit confirmation first.
+- it does not replace OCI CLI authentication
+- it does not vendor Oracle docs into this repo
+- it does not bypass user confirmation for high-impact OCI actions
+- it does not print credential values, private keys, auth tokens, or full `~/.oci/config`
+
+## License
+
+MIT. Upstream `HydroChlorix/oracle-skills` remains separately licensed by its own repository.

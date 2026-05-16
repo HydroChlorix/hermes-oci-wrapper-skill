@@ -1,59 +1,63 @@
 # Troubleshooting
 
-## `oci` command missing
+## `oci` command not found
 
 Symptom:
-- `oci --version` fails
+- readiness warns that OCI CLI is missing from `PATH`
 
-Action:
-- install the OCI CLI on the local machine
+What to check:
+- install OCI CLI separately
+- ensure the shell PATH used by Hermes includes the CLI binary
 - rerun `bash install.sh`
-- rerun `bash examples/check-oci-readiness.sh`
 
 ## `~/.oci/config` missing
 
 Symptom:
-- readiness check reports missing config
+- readiness warns that local OCI config is missing
 
-Action:
-- create or restore the local OCI CLI config under `~/.oci/config`
-- rerun the redacted inspection example
+What to check:
+- create or restore the local OCI profile configuration
+- verify the file path is exactly `~/.oci/config`
+- rerun `bash examples/safe-config-inspect.sh`
 
 ## Authorization failures
 
-Symptoms:
-- CLI installed and config exists, but OCI API calls fail
+Symptom:
+- read-only `oci` commands fail with auth or permission errors
 
-Checks:
-- confirm the intended profile
-- confirm the configured region
-- confirm the key file referenced by `~/.oci/config` still exists locally
-- confirm the account/user is still authorized
+What to check:
+- selected `--profile`
+- configured `region`
+- tenancy and user OCIDs in the profile
+- local private key file path exists
+- policy permissions for the target compartment or tenancy
 
-## Wrong region or profile
-
-Symptoms:
-- resource lookup fails or appears empty
-
-Action:
-- inspect redacted profile names and region values with `examples/safe-config-inspect.sh`
-- export the intended `OCI_CLI_PROFILE` before running read-only OCI commands
-
-## Upstream OCI skill missing or stubbed
+## Wrong region or wrong profile
 
 Symptom:
-- `~/.hermes/vendor/oracle-skills/oci/SKILL.md` is absent or insufficient
+- commands succeed but query the wrong tenancy, region, or resources
 
-Action:
-- run `bash update-upstream.sh`
-- search `~/.hermes/vendor/oracle-skills` for OCI-related docs
-- stay in readiness/read-only mode until the upstream OCI skill grows enough guidance for the requested task
+What to check:
+- use `bash examples/safe-config-inspect.sh`
+- specify `--profile <name>` explicitly in `oci` commands
+- add `--region <region>` when testing read-only calls
 
-## Upstream repo update fails
+## Upstream skill missing
 
-Symptoms:
-- `git pull --ff-only` reports divergence or missing repo
+Symptom:
+- `install.sh` warns that `~/.hermes/vendor/oracle-skills/oci/SKILL.md` is missing
 
-Action:
-- rerun `bash install.sh` if the repo is missing
-- if the repo diverged locally, resolve manually or reclone the vendor copy
+What to check:
+- network access to GitHub
+- the upstream repo URL is reachable
+- rerun `bash update-upstream.sh`
+
+## Upstream skill is only a stub
+
+Symptom:
+- `install.sh` warns that the upstream OCI skill still looks like a sample skeleton
+
+What to do:
+- keep using this wrapper for readiness and safety behavior
+- inspect the upstream repo for newly added OCI sub-skills or richer docs
+- avoid copying large OCI documentation into this wrapper repo unless the project scope changes

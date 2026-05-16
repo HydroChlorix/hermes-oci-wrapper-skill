@@ -1,35 +1,35 @@
-# Wrapper Design
+# OCI wrapper design
 
 ## Goal
 
-Provide a small Hermes OCI wrapper skill that depends on local OCI CLI authentication and delegates detailed OCI knowledge to the upstream `HydroChlorix/oracle-skills` repository.
+Keep the Hermes-facing OCI skill small, auditable, and easy to update while deferring detailed OCI guidance upstream.
 
-## Design Principles
+## Design choices
 
-1. Keep the wrapper small.
-2. Do not duplicate large upstream OCI documentation.
-3. Keep local readiness checks explicit and safe.
-4. Treat OCI write operations as high impact.
-5. Make missing upstream OCI content visible instead of hiding it.
+1. Wrapper, not forked documentation.
+   - The root skill explains how Hermes should operate safely with OCI.
+   - The upstream `HydroChlorix/oracle-skills` checkout remains the source for evolving OCI guidance.
 
-## Local Dependency Model
+2. Local tools and local config only.
+   - The wrapper assumes the operator wants to use the machine's existing `oci` CLI and existing `~/.oci/config`.
+   - This avoids embedding credentials or machine-specific setup into the repo.
 
-- OCI CLI comes from the local machine.
-- OCI auth comes from the local `~/.oci/config`.
-- Upstream guidance comes from `~/.hermes/vendor/oracle-skills`.
+3. Readiness before action.
+   - `install.sh` and `examples/check-oci-readiness.sh` verify the minimum prerequisites first.
+   - Missing prerequisites are surfaced as actionable warnings instead of triggering unsafe guesses.
 
-## Delegation Strategy
+4. Safe inspection by default.
+   - `examples/safe-config-inspect.sh` reports profile metadata in redacted form.
+   - Full config dumps and private key reads are intentionally excluded.
 
-Preferred lookup order:
-1. `~/.hermes/vendor/oracle-skills/oci/SKILL.md`
-2. targeted search under `~/.hermes/vendor/oracle-skills` for OCI-related docs
-3. read-only local discovery only
+5. Small update surface.
+   - `update-upstream.sh` only performs `git -C ~/.hermes/vendor/oracle-skills pull --ff-only`.
+   - The wrapper repo remains stable even if the upstream repo grows.
 
-If the upstream `oci/SKILL.md` file is missing, the wrapper should not invent a full OCI operating model. It should explicitly report the gap and stay conservative.
+## Expected operator workflow
 
-## Why This Wrapper Exists
-
-- lets Hermes reuse local OCI auth without copying secrets
-- provides a stable install/readiness workflow
-- centralizes safety policy for OCI actions
-- keeps upstream Oracle content updateable via `update-upstream.sh`
+1. Clone this repo into the Hermes skills tree.
+2. Run `install.sh`.
+3. Resolve any missing local OCI prerequisites.
+4. Use Hermes with `-s oci-wrapper` for read-only checks first.
+5. Load upstream OCI guidance when deeper service-specific help is needed.
