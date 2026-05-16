@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-UPSTREAM_DIR="${HOME}/.hermes/vendor/oracle-skills"
+UPSTREAM_DIR="${HERMES_HOME:-${HOME}/.hermes}/vendor/oracle-skills"
 
 if [ ! -d "$UPSTREAM_DIR/.git" ]; then
   printf '[oci-wrapper][error] upstream checkout missing at %s\n' "$UPSTREAM_DIR" >&2

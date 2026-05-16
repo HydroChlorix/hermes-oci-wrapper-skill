@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-HOME_DIR="${HOME}"
-OCI_CONFIG="${HOME_DIR}/.oci/config"
-UPSTREAM_SKILL="${HOME_DIR}/.hermes/vendor/oracle-skills/oci/SKILL.md"
+HERMES_HOME="${HERMES_HOME:-${HOME}/.hermes}"
+OCI_CONFIG="${HOME}/.oci/config"
+UPSTREAM_SKILL="${HERMES_HOME}/vendor/oracle-skills/oci/SKILL.md"
 
 failures=0
 

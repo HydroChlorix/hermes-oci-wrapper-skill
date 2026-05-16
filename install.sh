@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VENDOR_DIR="${HOME}/.hermes/vendor"
+VENDOR_DIR="${HERMES_HOME:-${HOME}/.hermes}/vendor"
 UPSTREAM_DIR="${VENDOR_DIR}/oracle-skills"
 UPSTREAM_REPO="https://github.com/HydroChlorix/oracle-skills.git"
 UPSTREAM_SKILL="${UPSTREAM_DIR}/oci/SKILL.md"
