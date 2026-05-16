@@ -23,6 +23,19 @@ The wrapper intentionally delegates detailed OCI domain guidance to `HydroChlori
 
 ## Quick install
 
+Two methods:
+
+**A) Via Hermes skills hub (recommended for users)**
+
+```bash
+hermes skills install https://raw.githubusercontent.com/HydroChlorix/hermes-oci-wrapper-skill/main/SKILL.md \
+  --category devops
+```
+
+This downloads only the SKILL.md. Supporting scripts (`install.sh`, examples) are not included — use inline checks listed in the skill itself.
+
+**B) Full git clone (includes scripts, examples, docs)**
+
 ```bash
 git clone https://github.com/HydroChlorix/hermes-oci-wrapper-skill.git ~/.hermes/skills/devops/oci-wrapper
 bash ~/.hermes/skills/devops/oci-wrapper/install.sh
