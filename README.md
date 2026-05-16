@@ -4,7 +4,7 @@ Lightweight Hermes skill wrapper for Oracle Cloud Infrastructure (OCI) work.
 
 This repository does three things:
 - uses the local `oci` CLI and local `~/.oci/config` already present on the machine
-- vendors the upstream skill source as a live Git checkout under `~/.hermes/vendor/oracle-skills`
+- keeps the upstream skill source as a live local Git checkout under `~/.hermes/vendor/oracle-skills`
 - keeps this wrapper focused on Hermes-specific guardrails, readiness checks, and safe usage patterns instead of copying large OCI docs
 
 The wrapper intentionally delegates detailed OCI domain guidance to `HydroChlorix/oracle-skills`, especially `oci/SKILL.md` and any future OCI sub-skills added upstream.
@@ -12,8 +12,9 @@ The wrapper intentionally delegates detailed OCI domain guidance to `HydroChlori
 ## Repo contents
 
 - `SKILL.md` — installable Hermes skill wrapper
+- `THIRD_PARTY_NOTICES.md` — upstream Oracle Skills attribution and trademark notice
 - `install.sh` — clone/update upstream and run non-secret readiness checks
-- `update-upstream.sh` — fast-forward-only refresh for the vendored upstream checkout
+- `update-upstream.sh` — fast-forward-only refresh for the local upstream checkout
 - `examples/check-oci-readiness.sh` — standalone readiness probe
 - `examples/safe-config-inspect.sh` — redacted local config inspection example
 - `docs/design.md` — wrapper design rationale
@@ -51,4 +52,25 @@ hermes chat -s oci-wrapper -q "Use the OCI wrapper skill. Check readiness only. 
 
 ## License
 
-MIT. Upstream `HydroChlorix/oracle-skills` remains separately licensed by its own repository.
+This wrapper project is licensed under the Universal Permissive License (UPL), Version 1.0.
+
+Upstream Oracle Skills repositories:
+
+- `oracle/skills`: https://github.com/oracle/skills
+- `HydroChlorix/oracle-skills`: https://github.com/HydroChlorix/oracle-skills
+
+The upstream Oracle Skills repository is also licensed under UPL 1.0 and carries this copyright notice:
+
+```text
+Copyright (c) 2025 Oracle and/or its affiliates.
+```
+
+This wrapper does not vendor Oracle Skills into this Git repository by default. `install.sh` clones or updates it locally at:
+
+```text
+~/.hermes/vendor/oracle-skills
+```
+
+See `THIRD_PARTY_NOTICES.md` for attribution and trademark notes.
+
+This project is not affiliated with, sponsored by, or endorsed by Oracle.

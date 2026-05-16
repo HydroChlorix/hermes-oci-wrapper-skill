@@ -3,7 +3,7 @@ name: oci-wrapper
 description: Use when the user wants Hermes to work with Oracle Cloud Infrastructure through the local OCI CLI and local ~/.oci/config while delegating detailed OCI guidance to HydroChlorix/oracle-skills.
 version: 0.1.0
 author: Hermes Agent
-license: MIT
+license: UPL-1.0
 metadata:
   hermes:
     tags: [oci, oracle-cloud, oracle-skills, wrapper, devops, cloud]
