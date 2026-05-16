@@ -56,6 +56,33 @@ bash examples/safe-config-inspect.sh
 hermes chat -s oci-wrapper -q "Use the OCI wrapper skill. Check readiness only. Do not print secrets." -Q
 ```
 
+## Integration tests
+
+The integration tests prove that Hermes can install and uninstall this skill
+through the Skills Hub flow without touching the real user `~/.hermes`. Each
+runtime uses an isolated temporary `HERMES_HOME`.
+
+Default discovery is safe and skips the opt-in runtime checks:
+
+```bash
+pytest tests/integration -q
+```
+
+Machine Hermes runtime:
+
+```bash
+RUN_HERMES_MACHINE_INTEGRATION=1 pytest tests/integration/test_hermes_skills_machine.py -q -s
+```
+
+Docker Hermes runtime:
+
+```bash
+RUN_HERMES_DOCKER_INTEGRATION=1 pytest tests/integration/test_hermes_skills_docker.py -q -s
+```
+
+Set `OCI_WRAPPER_SKILL_URL` to test a specific raw `SKILL.md` URL. CI sets it
+to the checked-out commit SHA.
+
 ## What this wrapper does not do
 
 - it does not replace OCI CLI authentication
