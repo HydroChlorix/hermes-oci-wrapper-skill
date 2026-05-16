@@ -8,13 +8,11 @@ UPSTREAM_SKILL="${UPSTREAM_DIR}/oci/SKILL.md"
 OCI_CONFIG="${HOME}/.oci/config"
 
 note() {
-  printf '[oci-wrapper] %s
-' "$*"
+  printf '[oci-wrapper] %s\n' "$*"
 }
 
 warn() {
-  printf '[oci-wrapper][warn] %s
-' "$*" >&2
+  printf '[oci-wrapper][warn] %s\n' "$*" >&2
 }
 
 require_cmd() {
@@ -24,6 +22,19 @@ require_cmd() {
   }
 }
 
+# --- Uninstall mode ---
+if [ "${1:-}" = "--uninstall" ]; then
+  if [ -d "$UPSTREAM_DIR" ]; then
+    note "removing upstream oracle-skills: ${UPSTREAM_DIR}"
+    rm -rf "$UPSTREAM_DIR"
+    note "done"
+  else
+    note "upstream oracle-skills not found at ${UPSTREAM_DIR} — nothing to remove"
+  fi
+  exit 0
+fi
+
+# --- Install / readiness mode ---
 readiness_failures=0
 
 require_cmd git || exit 1
