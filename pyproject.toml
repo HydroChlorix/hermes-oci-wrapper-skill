@@ -1,0 +1,4 @@
+[tool.pytest.ini_options]
+markers = [
+  "integration: tests that require external binaries/runtimes such as hermes or docker",
+]
